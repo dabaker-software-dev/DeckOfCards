@@ -1,10 +1,12 @@
 
 public class Assig3 
 {
+   
    public static void main(String[] args) 
    {
       
    }
+   
 }
 
 class Card
@@ -30,13 +32,19 @@ class Card
       set(value, suit);
    }
    
+   public Card(Card original)
+   {
+      set(original.value, original.suit);
+      errorFlag = original.errorFlag;
+   }
+   
    //Get card and error message strings ready to display depending on validity 
    public String toString()
    {
       if(errorFlag == true)
          return "** illegal **";
       else
-         return getValue() + " " + "of" + " " + getSuit();
+         return getValue() + " of " + getSuit();
    }
    
    //Set values and return boolean depending on if card is valid
@@ -105,7 +113,7 @@ class Hand
    private int numCards;
    
    public Hand(){}
-   
+   /*
    public void resetHand() 
    {
       
@@ -135,6 +143,7 @@ class Hand
    {
       
    }
+   */
 }
 
 class Deck
@@ -145,19 +154,45 @@ class Deck
    private Card[] cards;
    private int topCard;
    
+   private int numPacks;
+   
+   /*
+    * Default Constructor
+    */
    public Deck()
    {
-      
+      numPacks = 1;
+      cards = new Card[52];
+      Deck.allocateMasterPack();
    }
    
+   /*
+    * Constructor to set number of packs in the deck object
+    */
    public Deck(int numPacks)
    {
+      if(numPacks > 6)
+         numPacks = 6;
       
+      this.numPacks = numPacks;
+      cards = new Card[ numPacks * 52 ];
+      Deck.allocateMasterPack();
    }
    
    public void init(int numPacks)
    {
+      int counter = 0;
+      for(int k = 0; k < numPacks * 52; k++)
+      {
+         if( k % 52 == 0 )
+         {
+            counter = 0;
+         }
+         
+         cards[k] = new Card(masterPack[counter++]);
+      }
       
+      this.topCard = cards.length;
    }
    
    public void shuffle() 
@@ -165,23 +200,112 @@ class Deck
       
    }
    
+   /*
+    * Removes card from top of deck
+    * return Card object reference at topDeck position
+    */
    public Card dealCard()
    {
+      Card currentCard;
+      if(topCard > 0)
+      {
+         currentCard = cards[(topCard-1)];
+         topCard--;
+         return currentCard;
+      }
+      else
+      {
+         currentCard = new Card();
+      }
       
+      /* DAVEDEV
+       * I'm not sure what to return if there are no more cards to deal
+       */
+      return currentCard;
    }
    
-   public int getTopCard()
+   
+   /*
+    * Accessor for card at top of deck
+    * return Card object reference at topDeck position
+    */
+   public Card getTopCard()
    {
+      Card theTopCard = cards[topCard];
       
+      return theTopCard;
    }
    
+   /*
    public Card inspectCard(int k)
    {
       
    }
    
+   */
+
+   /*
+    * Fill Master Pack with 52 distinct cards
+    * Check that this is the first time the method has ran, otherwise do nothing 
+    */
    private static void allocateMasterPack()
    {
       
-   }
+      if(masterPack == null)
+      {
+         masterPack = new Card[52];
+         
+         // array of suit values to iterate over
+         Card.Suit[] suitValues = Card.Suit.values();
+         int localMasterPackCounter = 0;
+         
+         for(Card.Suit suit : suitValues)
+         {
+            Card newCard = new Card();;
+            char valueChar; //assume value
+            
+            for(int i = 13; i > 0; i--)
+            {
+               if( i > 1 && i < 10 )
+               {
+                  valueChar = (char)('0' + i);
+               }
+               else if(i == 13)
+               {
+                  valueChar = 'K';
+               }
+               else if(i == 12)
+               {
+                  valueChar = 'Q';
+               }
+               else if(i == 11)
+               {
+                  valueChar = 'J';
+               }
+               else if(i == 10)
+               {
+                  valueChar = 'T';
+               }
+               else
+               {
+                  valueChar = 'A';
+               }
+               
+               newCard = new Card(valueChar, suit);
+            
+               masterPack[localMasterPackCounter] = newCard;
+               
+               if(localMasterPackCounter == 51)
+               {
+                  localMasterPackCounter = 0;
+               }
+               else
+               {
+                  localMasterPackCounter++;
+               }
+               
+            }
+         } 
+      }
+   } // END allocateMasterPack()
 }
